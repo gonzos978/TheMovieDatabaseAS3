@@ -1,0 +1,45 @@
+#         OS
+
+.DS_Store
+.DS_Store?
+ehthumbs.db
+Thumbs.db
+Icon?
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+#         GIT
+
+*.orig
+
+#         IDE
+
+.settings/*
+.project
+user.properties
+.idea?
+.metadata/*
+lab/.metadata/*
+
+#        MEDIA
+
+#        FLASH
+
+/bin/*
+.settings/*
+/bin-debug/*
+/html-template/*
+.settings/*
+/bin-debug/*
+/html-template/*
+
+
+#		vim
+
+*.swp
+*.swo
+*.swm
+*.swn
+
