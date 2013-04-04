@@ -1,6 +1,5 @@
 package com.rad.moviedatabase
 {
-	import com.demonsters.debugger.MonsterDebugger;
 	import com.rad.moviedatabase.events.MDFaultEvent;
 	import com.rad.moviedatabase.events.MDImageEvent;
 	import com.rad.moviedatabase.events.MDResultEvent;
@@ -32,6 +31,7 @@ package com.rad.moviedatabase
 	import flash.events.SecurityErrorEvent;
 	import flash.net.URLLoaderDataFormat;
 	import flash.net.URLRequest;
+	import flash.net.URLRequestHeader;
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
 	import flash.net.navigateToURL;
@@ -68,6 +68,7 @@ package com.rad.moviedatabase
 		private var _urlLoaders:Vector.<MDLoader>;
 		private var _imgLoader:Loader;
 		private var _urlRequest:URLRequest;
+		private var _urlVariables:URLVariables;
 		private var _storage:MDUserStorage;
 		private var _account:MDAccountVO;
 		private var _genre:MDGenreVO;
@@ -79,7 +80,6 @@ package com.rad.moviedatabase
 		private var _listParser:MDListResultParser;
 		private var _accountParser:MDAccountResultParser;
 		private var _searchParser:MDSearchResultParser;
-		
 		public function MDService()
 		{
 			super();
@@ -90,6 +90,7 @@ package com.rad.moviedatabase
 			_accountParser = new MDAccountResultParser();
 			_searchParser = new MDSearchResultParser();
 			
+			_urlVariables = new URLVariables();
 			_urlRequest = new URLRequest();
 			_storage = new MDUserStorage();
 			_genre = new MDGenreVO();
@@ -685,9 +686,17 @@ package com.rad.moviedatabase
 		{
 			if(!_storage.account_id) throw new Error("Make sure you call the getAccountInfo method first!");
 			_searchedId = id;
-			var url:String = MOVIE_DB_BASE_URL+"account/"+_storage.account_id+"/favorite?api_key="+api_key+"&session_id="+_storage.session_id+"&movie_id="+id+"&favorite="+isFavorite;
-			_urlRequest.url = url;
+			var o:Object = new Object();
+			o.movie_id = int(id);
+			o.favorite = isFavorite;
+			var url:String = MOVIE_DB_BASE_URL+"account/"+_storage.account_id+"/favorite?api_key="+api_key+"&session_id="+_storage.session_id
+			var hdr:URLRequestHeader = new URLRequestHeader("Content-type", "application/json");
+			var hdr2:URLRequestHeader = new URLRequestHeader("Accept", "application/json");
+			_urlRequest.requestHeaders.push(hdr);
+			_urlRequest.requestHeaders.push(hdr2);
 			_urlRequest.method = URLRequestMethod.POST;
+			_urlRequest.data = JSON.stringify(o);
+			_urlRequest.url = url;
 			var loader : MDLoader =  _getUrlLoader(url);
 			loader.type = MDEventTypeConstants.ACCOUNT_SET_FAVORITE;
 			loader.returnType = MDEventTypeConstants.ACCOUNT_SET_FAVORITE;
@@ -718,8 +727,16 @@ package com.rad.moviedatabase
 		{
 			if(!_storage.account_id) throw new Error("Make sure you call the getAccountInfo method first!");
 			_searchedId = id;
-			var url:String = MOVIE_DB_BASE_URL+"account/"+_storage.account_id+"/movie_watchlist?api_key="+api_key+"&session_id="+_storage.session_id+"&movie_id="+id+"&movie_watchlist="+isOnWatchlist;
+			var o:Object = new Object();
+			o.movie_id = int(id);
+			o.movie_watchlist = isOnWatchlist;
+			var url:String = MOVIE_DB_BASE_URL+"account/"+_storage.account_id+"/movie_watchlist?api_key="+api_key+"&session_id="+_storage.session_id;
+			var hdr:URLRequestHeader = new URLRequestHeader("Content-type", "application/json");
+			var hdr2:URLRequestHeader = new URLRequestHeader("Accept", "application/json");
+			_urlRequest.requestHeaders.push(hdr);
+			_urlRequest.requestHeaders.push(hdr2);
 			_urlRequest.method = URLRequestMethod.POST;
+			_urlRequest.data = JSON.stringify(o);
 			_urlRequest.url = url;
 			var loader : MDLoader =  _getUrlLoader(url);
 			loader.type = MDEventTypeConstants.ACCOUNT_SET_WATCHLIST;
@@ -929,7 +946,7 @@ package com.rad.moviedatabase
 			loader.addEventListener(Event.COMPLETE, _onLoader_CompleteHandler);
 			loader.addEventListener(Event.DEACTIVATE, _onLoader_DeactivateHandler);
 			loader.addEventListener(Event.OPEN, _onLoader_OpenHandler);
-			loader.addEventListener(HTTPStatusEvent.HTTP_STATUS, _onLoader_StatusHandler);
+			loader.addEventListener(HTTPStatusEvent.HTTP_RESPONSE_STATUS, _onLoader_StatusHandler);
 			loader.addEventListener(IOErrorEvent.IO_ERROR, _onLoader_IOErrorHandler);
 			loader.addEventListener(ProgressEvent.PROGRESS, _onLoader_ProgressHandler);
 			loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, _onLoader_SecurityHandler);
@@ -963,7 +980,7 @@ package com.rad.moviedatabase
 			loader.removeEventListener(Event.COMPLETE, _onLoader_CompleteHandler);
 			loader.removeEventListener(Event.DEACTIVATE, _onLoader_DeactivateHandler);
 			loader.removeEventListener(Event.OPEN, _onLoader_OpenHandler);
-			loader.removeEventListener(HTTPStatusEvent.HTTP_STATUS, _onLoader_StatusHandler);
+			loader.removeEventListener(HTTPStatusEvent.HTTP_RESPONSE_STATUS, _onLoader_StatusHandler);
 			loader.removeEventListener(IOErrorEvent.IO_ERROR, _onLoader_IOErrorHandler);
 			loader.removeEventListener(ProgressEvent.PROGRESS, _onLoader_ProgressHandler);
 			loader.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, _onLoader_SecurityHandler);

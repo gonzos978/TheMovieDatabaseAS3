@@ -15,7 +15,7 @@ Icon?
 *.orig
 
 #         IDE
-
+.actionScriptProperties
 .settings/*
 .project
 user.properties
